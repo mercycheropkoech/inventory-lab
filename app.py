@@ -1,12 +1,13 @@
 from flask import Flask, jsonify, request
 from inventory import inventory
+from openfoodfacts import get_product
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
     return jsonify({
-        "message": "Inventory Management API is running!",
+        "message": "Welcome to the Inventory Management ",
         "routes": [
             "GET /inventory",
             "GET /inventory/<id>",
@@ -73,6 +74,16 @@ def delete_item(item_id):
     inventory.remove(item)
 
     return jsonify({"message":"Item deleted"}),200
+
+@app.route("/product/<barcode>", methods=["GET"])
+def fetch_product(barcode):
+
+    product = get_product(barcode)
+
+    if product is None:
+        return jsonify({"message": "Product not found"}), 404
+
+    return jsonify(product), 200
 
 if __name__ == "__main__":
     app.run(debug=True)
